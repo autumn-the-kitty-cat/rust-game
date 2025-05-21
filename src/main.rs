@@ -21,8 +21,14 @@ fn main() {
             ..Default::default()
         }))
         .add_systems(Startup, setup)
+        .add_systems(Update, move_player)
         .run();
 }
+
+const PLAYER_SPEED: f32 = 800.0;
+
+#[derive(Component)]
+struct MapTile;
 
 #[derive(Component)]
 struct Player;
@@ -52,7 +58,10 @@ fn setup(
     let level1 = LevelMap {
         width: 32,
         entrance: Entrance {
-            left_entrance: Some(Vec2::new(block_width * 3.0, block_height * 3.0)),
+            left_entrance: Some(Vec2::new(
+                block_width * 0.5 - primary_window.width() / 2.0,
+                block_height * 5.5 - primary_window.height() / 2.0,
+            )),
             right_entrance: None,
             up_entrance: None,
             down_entrance: None,
@@ -99,8 +108,43 @@ fn setup(
                     primary_window.height() / 2. - block_height * i as f32 - block_height / 2.0,
                     0.0,
                 ),
-                Player,
+                MapTile,
             ));
         }
+    }
+
+    commands.spawn((
+        Mesh2d(meshes.add(Rectangle::new(block_width, block_height))),
+        MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::linear_rgb(
+            255.0, 0.0, 0.0,
+        )))),
+        Transform::from_xyz(
+            level1.entrance.left_entrance.unwrap().x,
+            level1.entrance.left_entrance.unwrap().y,
+            0.0,
+        ),
+        Player,
+    ));
+}
+
+fn move_player(
+    input: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
+    mut player_transform: Single<&mut Transform, With<Player>>,
+) {
+    let mut next_player_d_position = player_transform.translation;
+    next_player_d_position.x += PLAYER_SPEED * time.delta_secs();
+    let mut collides_d = false;
+
+    let mut next_player_a_position = player_transform.translation;
+    next_player_d_position.x -= PLAYER_SPEED * time.delta_secs();
+    let mut collides_a = false;
+
+    if input.pressed(KeyCode::KeyD) && !collides_d {
+        player_transform.translation.x += PLAYER_SPEED * time.delta_secs();
+    }
+
+    if input.pressed(KeyCode::KeyA) && !collides_a {
+        player_transform.translation.x -= PLAYER_SPEED * time.delta_secs();
     }
 }
