@@ -59,6 +59,8 @@ fn setup(
     let block_width = primary_window.width() / 32.0;
     let block_height = primary_window.height() / 18.0;
 
+    let block_mesh = meshes.add(Rectangle::new(block_width, block_height));
+
     let level1 = LevelMap {
         width: 32,
         entrance: Entrance {
@@ -103,7 +105,7 @@ fn setup(
             let i = index / level1.width;
             let j = index % level1.width;
             commands.spawn((
-                Mesh2d(meshes.add(Rectangle::new(block_width, block_height))),
+                Mesh2d(block_mesh.clone()),
                 MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::linear_rgb(
                     0.0, 255.0, 0.0,
                 )))),
@@ -118,7 +120,7 @@ fn setup(
     }
 
     commands.spawn((
-        Mesh2d(meshes.add(Rectangle::new(block_width, block_height))),
+        Mesh2d(block_mesh.clone()),
         MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::linear_rgb(
             255.0, 0.0, 0.0,
         )))),
