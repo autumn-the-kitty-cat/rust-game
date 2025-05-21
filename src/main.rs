@@ -3,6 +3,8 @@ use bevy::{
     window::{CursorGrabMode, CursorOptions, PresentMode, PrimaryWindow, WindowMode},
 };
 
+use bevy_rapier2d::prelude::*;
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -20,6 +22,8 @@ fn main() {
             }),
             ..Default::default()
         }))
+        .add_plugins(RapierDebugRenderPlugin::default())
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(80.))
         .add_systems(Startup, setup)
         .add_systems(Update, move_player)
         .run();
